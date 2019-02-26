@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Todo List</title>
+	<link rel="stylesheet" href="style.css">
+	<link href="https://fonts.googleapis.com/css?family=Charm|Roboto+Condensed" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Charm|Noto+Sans|Roboto+Condensed" rel="stylesheet">
+	<script type=”text/javascript” src=”http://code.jquery.com/jquery-2.0.3.min.js”></script>
+
+</head>
+<body>
+	<div id="wrapper">
+		<div class="container">
+			<div class="todolist">
+				<div class="todolist__header">
+					<h2 class="todolist__header__title">To Do List</h2>
+					<input type="text" id="todolist__header__input" placeholder="New Tasks .." onkeypress="catchEnter()">
+					<!-- <span onclick="addItem()" class="todolist__header__add">Add Task</span> -->
+				</div>
+				<div class="clearfix"></div>
+				<div class="todolist__footer">
+					<div class="todolist__footer__task">
+						<span id=todolist__footer__task__num></span> Task @@!
+					</div>
+					<div class="todolist__footer__done">
+						<span id=todolist__footer__done__num></span> Task done @@!
+					</div>
+				</div>
+				<div class="todolist__content">
+					<ul id="todolist__content__list">
+					</ul>
+				</div>
+				<div class="todolist__footer__btn">
+					<div class="todolist__footer__btn__notdone">
+						<span onclick="allTask()" class="todolist__footer__clear__all">All task</span>
+					</div>
+					<div class="todolist__footer__btn__notdone">
+						<span onclick="getNotDone()" class="todolist__footer__clear__all">Task not done</span>
+					</div>
+					<div class="todolist__footer__btn__done">
+						<span onclick="getDone()" class="todolist__footer__clear__all">Task done</span>
+					</div>
+					<div class="todolist__footer__clear">
+						<span onclick="clearDone()" class="todolist__footer__clear__done">Clear Done</span>
+					</div>
+					<div class="todolist__footer__clear">
+						<span onclick="clearAllItem()" class="todolist__footer__clear__all">Clear All</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+//biến tab đang hoạt động
+	var tab=0;
+//call functions
+	addNoneItem();
+	countTasks();
+	countTaskDone();
+	loadDataTodo();
+	blockSpan();
+	checkInput();
+//load todo cũ
+	function loadDataTodo(){
+		document.getElementById("todolist__content__list").innerHTML = localStorage.getItem("dataTodo");
+	}
+//hiển thị task chưa hoàn thành
+	function getNotDone(){
+		allTask();
+		tab=1;
+		var getDone= document.getElementsByClassName("done");
+		var getNotDone= document.getElementsByClassName("notdone");
+		for (var i = 0; i < getDone.length; i++) {
+			getDone[i].parentElement.style.display="none";
+		}
+		for (var i = 0; i < getNotDone.length; i++) {
+			getNotDone[i].parentElement.style.display="block";
+		}
+	}
+//hiển thị all task
+	function allTask(){
+		tab=0;
+		var getDone= document.getElementsByClassName("done");
+		var getNotDone= document.getElementsByClassName("notdone");
+		var getCheck= document.getElementsByClassName("check");
+		for (var i = 0; i < getDone.length; i++) {
+			getDone[i].parentElement.style.display="block";
+		}
+		for (var i = 0; i < getNotDone.length; i++) {
+			getNotDone[i].parentElement.style.display="block";
+		}
+		for (var i = 0; i < getCheck.length; i++) {
+			getCheck[i].parentElement.style.display="block";
+		}
+	}
+//hiển thị task done
+	function getDone(){
+		allTask();
+		tab=2;
+		var getDone= document.getElementsByClassName("done");
+		var getNotDone= document.getElementsByClassName("check");
+		for (var i = 0; i < getNotDone.length; i++) {
+			getNotDone[i].parentElement.style.display="none";
+		}
+		for (var i = 0; i < getDone.length; i++) {
+			getDone[i].parentElement.style.display="block";
+		}
+	}
+//Đếm task
+	function countTasks(){
+		var tasks=0;
+		var getCheck= document.getElementsByClassName("li");
+		if(getCheck.length!=0){
+			for (var k = 0; k <getCheck.length; k++) {
+				tasks++;
+		  	}
+		var getTaskNumber = document.getElementById("todolist__footer__task__num");
+		getTaskNumber.innerHTML=tasks;
+		}
+		else{
+			var getTaskNumber = document.getElementById("todolist__footer__task__num");
+			getTaskNumber.innerHTML='0';
+		}
+	}
+//Đếm task done
+	function countTaskDone(){
+		let getCheck=document.getElementsByClassName("done");
+		var tasksDone=0;
+		if(getCheck.length!=0){
+			for (var i = 0; i < getCheck.length; i++) {
+				var countNone=getCheck[i].parentElement
+					tasksDone++;
+				var getTaskDoneNumber = document.getElementById("todolist__footer__done__num");
+				getTaskDoneNumber.innerHTML=tasksDone;
+			}
+		}
+		else{
+			var getTaskDoneNumber = document.getElementById("todolist__footer__done__num");
+			getTaskDoneNumber.innerHTML='0';
+		}
+	}
+//Hiện thị x khi hover
+	function blockSpan(){
+		let getListLi= document.getElementsByClassName("li");
+		for (var i = 0; i < getListLi.length; i++) {
+			getListLi[i].onmouseover = function() {
+				for (var j = 0; j < getListLi.length; j++) {
+					getListLi[j].querySelector(".close").style.display="none";
+				}
+				let getListClose= this.querySelector(".close");
+				getListClose.style.display="block";
+			}
+		}
+			  
+	}
+//thêm btn
+	function addSpan(){
+		var getListLi = document.getElementsByTagName("li");		
+		for (var i = 0; i < getListLi.length; i++) {
+		  var createClose = document.createElement("SPAN");
+		  var craeteText = document.createTextNode("\u00D7");
+		  createClose.className = "close";
+		  createClose.appendChild(craeteText);
+		  getListLi[i].appendChild(createClose);
+		  var createCheck = document.createElement("SPAN");	
+		  var craeteTextCheck = document.createTextNode("Done");	  
+		  createCheck.className="check";
+		  createCheck.appendChild(craeteTextCheck);
+		  getListLi[i].appendChild(createCheck);
+		}
+	}
+//ẩn node
+	function addNoneItem(){
+		var getClose = document.getElementsByClassName("close");
+		for (var i = 0; i < getClose.length; i++) {
+			getClose[i].onclick = function() {
+				var div = this.parentElement;
+				var divPa=div.parentElement;
+				divPa.removeChild(div);
+				countTasks();
+				countTaskDone();
+				saveData();
+			}
+		}
+	}
+//thêm node
+	function addItem() {
+		var li = document.createElement("li");
+		li.className = "li";
+		var inputValue = document.getElementById("todolist__header__input").value;
+		var valueitem = document.createTextNode(inputValue);
+		li.appendChild(valueitem);
+		document.getElementById("todolist__header__input").value="";
+		if (inputValue === '') {
+		alert("Chưa nhập công việc @@!");
+		}else{
+			document.getElementById("todolist__content__list").appendChild(li);
+		}
+		var createClose = document.createElement("SPAN");
+		var craeteText = document.createTextNode("\u00D7");
+		createClose.className = "close";
+		createClose.appendChild(craeteText);
+		li.appendChild(createClose);
+		var createCheck = document.createElement("SPAN");	
+		var craeteTextCheck = document.createTextNode("Done");	  
+		createCheck.className="check";
+		createCheck.appendChild(craeteTextCheck);
+		li.appendChild(createCheck);
+		addNoneItem();
+		checkInput();
+		countTasks();
+		countTaskDone();
+		blockSpan();
+		saveData();
+	}
+//xóa toàn bộ node		
+	function clearAllItem(){
+	var getItemLi = document.getElementsByTagName("li");
+		var i;
+		for (i = 0; i < getItemLi.length; i++) {
+		  getItemLi[i].style.display = "none";
+		}
+		localStorage.removeItem("dataTodo");
+		document.getElementById("todolist__content__list").innerHTML = localStorage.getItem("dataTodo");
+		countTasks();
+		countTaskDone();	  
+	}
+//xóa toàn bộ node done		
+	function clearDone(){
+	var getItemLi = document.getElementsByClassName("done");
+	var getUl = document.getElementById("todolist__content__list");
+		var i;
+		for (i = 0; i < getItemLi.length; i++) {
+			var getDiv=getItemLi[i].parentElement;
+			getUl.removeChild(getDiv);
+			clearDone();
+		}
+		countTasks();
+		countTaskDone();
+		saveData();
+			  
+	}
+//thêm thi enter
+	function catchEnter(){		 
+		 if (event.keyCode==13) {
+		 	addItem();
+		 	if (tab==2) {
+				getDone();
+			}else
+			if (tab==1) {
+				getNotDone();
+			}else
+			{
+				allTask();
+			}
+		 }		
+	}
+// save data
+	function saveData(){
+		if (typeof(Storage) !== 'undefined') {
+			let getTodo=document.getElementById('todolist__content__list');
+		    localStorage.setItem('dataTodo',getTodo.innerHTML);
+		} else {
+		    alert('Trình duyệt của bạn không hỗ trợ Storage');
+		}
+	}
+//check done
+	function checkInput(){
+		let getCkeck= document.getElementsByClassName('check');
+		for (var i = 0; i < getCkeck.length; i++) {
+			getCkeck[i].onclick = function() {
+				if (this.classList.contains('done')) {
+					this.classList.remove('done');
+					this.classList.add('notdone');
+					if (tab==2) {
+						getDone();
+					}else if (tab==1) {
+						getNotDone();
+					}else{
+						allTask();
+					}
+					
+				}
+				else  {
+					this.classList.add('done');
+					this.classList.remove('notdone');
+					if (tab==2) {
+						getDone();
+					}else if (tab==1) {
+						getNotDone();
+					}else{
+						allTask();
+					}
+				}
+		    countTasks();
+		    countTaskDone();
+		    saveData();
+			}
+		}
+	}
+
+
+</script> 
+<script type="text/javascript">
+	
+</script>	
+</body>
+</html>
